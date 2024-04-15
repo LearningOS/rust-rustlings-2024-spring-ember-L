@@ -72,11 +72,54 @@ impl<T> LinkedList<T> {
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
 		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        if list_b.length == 0 && list_a.length == 0 {
+            return Self {
+                length: 0,
+                start: None,
+                end: None,
+            };
+        } else if list_a == 0 {
+            return Self {
+                length: list_b.length,
+                start: list_b.start,
+                end: list_b.end,
+            };
+        } else {
+            return Self {
+                length: list_a.length,
+                start: list_a.start,
+                end: list_a.end,
+            };
         }
+        let mut a_ptr = match list_a.start {
+            None => None,
+            Some(next_ptr) => {
+                Some(unsafe { &(*next_ptr.as_ptr())})
+            }            
+        };
+        let mut b_ptr = match list_b.start {
+            None => None,
+            Some(next_ptr) => {
+                Some(unsafe { &(*next_ptr.as_ptr())})
+            }            
+        };
+        let length = list_a.length + list_b.length;
+
+        while(){
+            let a_next = match a {
+                None => None,
+                Some(next_ptr) => {
+                    unsafe { &(*next_ptr.as_ptr())}
+                }            
+            };
+            let b_next = match b {
+                None => None,
+                Some(next_ptr) => {
+                    unsafe { &(*next_ptr.as_ptr())}
+                }            
+            };
+        }
+        Self
 	}
 }
 
