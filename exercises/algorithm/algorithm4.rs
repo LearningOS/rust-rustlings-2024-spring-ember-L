@@ -51,13 +51,30 @@ where
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
         //TODO
+
     }
 
     // Search for a value in the BST
-    fn search(&self, value: T) -> bool {
+    fn search(&self, value: T) -> bool
+    where T: Clone
+    {
         //TODO
-        true
+        let mut cur = self.root;
+        // 循环查找，越过叶节点后跳出
+        while let Some(node) = cur.clone() {
+            match value.cmp(&node.borrow().value) {
+                // 目标节点在 cur 的右子树中
+                Ordering::Greater => cur = node.borrow().right.clone(),
+                // 目标节点在 cur 的左子树中
+                Ordering::Less => cur = node.borrow().left.clone(),
+                // 找到目标节点，跳出循环
+                Ordering::Equal =>{ return true;},
+            }
+        }
+        false
     }
+
+
 }
 
 impl<T> TreeNode<T>

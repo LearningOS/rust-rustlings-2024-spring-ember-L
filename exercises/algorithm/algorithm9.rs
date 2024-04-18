@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -14,17 +13,19 @@ where
     count: usize,
     items: Vec<T>,
     comparator: fn(&T, &T) -> bool,
+    idx: usize,
 }
 
 impl<T> Heap<T>
 where
-    T: Default,
+    T: Default + Ord,
 {
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
             count: 0,
             items: vec![T::default()],
             comparator,
+            idx: 1,
         }
     }
 
@@ -36,8 +37,21 @@ where
         self.len() == 0
     }
 
-    pub fn add(&mut self, value: T) {
-        //TODO
+    pub fn add(&mut self, value: T) 
+    where T: std::fmt::Debug + Copy{
+        println!("item {:?}",self.items);
+        self.items.push(value);
+        self.count += 1;
+        let mut i = self.count;
+        while i/2 > 0 && (self.comparator)(&self.items[i], &self.items[i/2]){
+            let temp = self.items[i];
+            self.items[i] = self.items[i/2];
+            self.items[i/2] = temp;
+            i /= 2;
+        }
+        if i < self.idx {
+            self.idx = 1;
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +72,11 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+		if self.items[self.left_child_idx(idx)] < self.items[self.right_child_idx(idx)] {
+            self.left_child_idx(idx)
+        } else {
+            self.right_child_idx(idx)
+        }
     }
 }
 
@@ -79,13 +97,21 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Copy
 {
     type Item = T;
 
-    fn next(&mut self) -> Option<T> {
+    fn next(&mut self) -> Option<Self::Item> 
+    {
         //TODO
-		None
+        if self.count == 0{
+            None
+        } else {
+            let tmp = self.idx;
+            self.idx += 1;
+            Some(self.items[tmp])
+        }
+        
     }
 }
 
@@ -130,10 +156,12 @@ mod tests {
         heap.add(9);
         heap.add(11);
         assert_eq!(heap.len(), 4);
+       
         assert_eq!(heap.next(), Some(2));
         assert_eq!(heap.next(), Some(4));
         assert_eq!(heap.next(), Some(9));
         heap.add(1);
+        println!("vec Itme = {:?}",heap.items);
         assert_eq!(heap.next(), Some(1));
     }
 
@@ -144,6 +172,7 @@ mod tests {
         heap.add(2);
         heap.add(9);
         heap.add(11);
+        
         assert_eq!(heap.len(), 4);
         assert_eq!(heap.next(), Some(11));
         assert_eq!(heap.next(), Some(9));

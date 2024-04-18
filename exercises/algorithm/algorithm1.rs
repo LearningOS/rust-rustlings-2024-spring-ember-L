@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -35,7 +34,8 @@ impl<T> Default for LinkedList<T> {
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T> LinkedList<T>
+{
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -51,7 +51,7 @@ impl<T> LinkedList<T> {
         match self.end {
             None => self.start = node_ptr,
             Some(end_ptr) => unsafe { (*end_ptr.as_ptr()).next = node_ptr },
-        }
+        }   
         self.end = node_ptr;
         self.length += 1;
     }
@@ -69,58 +69,66 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+    pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+    where T:  std::cmp::PartialOrd
 	{
-		//TODO
         if list_b.length == 0 && list_a.length == 0 {
             return Self {
                 length: 0,
                 start: None,
                 end: None,
             };
-        } else if list_a == 0 {
+        } else if list_a.length == 0 {
             return Self {
                 length: list_b.length,
                 start: list_b.start,
                 end: list_b.end,
             };
-        } else {
+        } else if list_b.length == 0 {
             return Self {
                 length: list_a.length,
                 start: list_a.start,
                 end: list_a.end,
             };
         }
-        let mut a_ptr = match list_a.start {
-            None => None,
-            Some(next_ptr) => {
-                Some(unsafe { &(*next_ptr.as_ptr())})
-            }            
-        };
-        let mut b_ptr = match list_b.start {
-            None => None,
-            Some(next_ptr) => {
-                Some(unsafe { &(*next_ptr.as_ptr())})
-            }            
-        };
-        let length = list_a.length + list_b.length;
 
-        while(){
-            let a_next = match a {
-                None => None,
-                Some(next_ptr) => {
-                    unsafe { &(*next_ptr.as_ptr())}
-                }            
-            };
-            let b_next = match b {
-                None => None,
-                Some(next_ptr) => {
-                    unsafe { &(*next_ptr.as_ptr())}
-                }            
-            };
+        let mut list = LinkedList::<T>::new();
+        list.length = list_a.length + list_b.length;
+
+        let mut node_a = list_a.start;
+        let mut node_b = list_b.start;
+        
+        if unsafe{(*node_a.unwrap().as_ptr()).val < (*node_b.unwrap().as_ptr()).val}{
+            list.start = node_a;
+            unsafe{ node_a = (*node_a.unwrap().as_ptr()).next};
+        } else {
+            list.start = node_b;
+            unsafe{ node_b = (*node_b.unwrap().as_ptr()).next};
         }
-        Self
-	}
+        let mut list_node = list.start;
+        while node_a.is_some() && node_b.is_some(){ 
+            if unsafe{(*node_a.unwrap().as_ptr()).val < (*node_b.unwrap().as_ptr()).val}{
+                unsafe{ (*list_node.unwrap().as_ptr()).next = node_a}
+                unsafe{ node_a = (*node_a.unwrap().as_ptr()).next};
+            } else {
+                unsafe{ (*list_node.unwrap().as_ptr()).next = node_b}
+                unsafe{ node_b = (*node_b.unwrap().as_ptr()).next};
+            }
+            unsafe{list_node = (*list_node.unwrap().as_ptr()).next}
+        }
+
+        if node_a.is_some() {
+            unsafe{ (*list_node.unwrap().as_ptr()).next = node_a}
+            list.end = list_a.end;
+        }
+
+        if node_b.is_some() {
+            unsafe{ (*list_node.unwrap().as_ptr()).next = node_b}
+            list.end = list_b.end;
+        }
+
+        list
+    }
 }
 
 impl<T> Display for LinkedList<T>
