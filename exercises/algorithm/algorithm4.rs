@@ -3,7 +3,6 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -28,7 +27,7 @@ where
 
 impl<T> TreeNode<T>
 where
-    T: Ord,
+    T: Ord + Copy,
 {
     fn new(value: T) -> Self {
         TreeNode {
@@ -41,7 +40,7 @@ where
 
 impl<T> BinarySearchTree<T>
 where
-    T: Ord,
+    T: Ord + Copy + Debug,
 {
 
     fn new() -> Self {
@@ -50,8 +49,40 @@ where
 
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
-        //TODO
+        if self.root.is_none() {
+            // 如果树为空，则将新值作为根节点
+            self.root = Some(Box::new(TreeNode {
+                value,
+                left: None,
+                right: None,
+            }));
+            return;
+        }
 
+        let mut current = self.root.as_mut().unwrap();
+        loop {
+            if value < current.value {
+                // 如果插入值小于等于当前节点的值，则往左子树插入
+                if let Some(ref mut left) = current.left {
+                    current = left;
+                } else {
+                    // 如果左子树为空，则将新值插入为左子节点
+                    current.left = Some(Box::new(TreeNode::new(value)));
+                    break;
+                }
+            } else if value > current.value{
+                // 如果插入值大于当前节点的值，则往右子树插入
+                if let Some(ref mut right) = current.right {
+                    current = right;
+                } else {
+                    // 如果右子树为空，则将新值插入为右子节点
+                    current.right = Some(Box::new(TreeNode::new(value)));
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
     }
 
     // Search for a value in the BST
@@ -59,22 +90,20 @@ where
     where T: Clone
     {
         //TODO
-        let mut cur = self.root;
+        let mut cur = &self.root;
         // 循环查找，越过叶节点后跳出
-        while let Some(node) = cur.clone() {
-            match value.cmp(&node.borrow().value) {
+        while cur.is_some() {
+            match value.cmp(&cur.as_ref().unwrap().value) {
                 // 目标节点在 cur 的右子树中
-                Ordering::Greater => cur = node.borrow().right.clone(),
+                Ordering::Greater => cur = &(cur.as_ref().unwrap()).right,
                 // 目标节点在 cur 的左子树中
-                Ordering::Less => cur = node.borrow().left.clone(),
+                Ordering::Less => cur = &(cur.as_ref().unwrap()).left,
                 // 找到目标节点，跳出循环
                 Ordering::Equal =>{ return true;},
             }
         }
         false
     }
-
-
 }
 
 impl<T> TreeNode<T>
@@ -82,9 +111,10 @@ where
     T: Ord,
 {
     // Insert a node into the tree
-    fn insert(&mut self, value: T) {
-        //TODO
-    }
+    // fn insert(&mut self, value: T) 
+    // {
+    //     //TODO
+    // }
 }
 
 
