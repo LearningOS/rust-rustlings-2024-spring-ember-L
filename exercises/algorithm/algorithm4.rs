@@ -51,32 +51,28 @@ where
     fn insert(&mut self, value: T) {
         if self.root.is_none() {
             // 如果树为空，则将新值作为根节点
-            self.root = Some(Box::new(TreeNode {
-                value,
-                left: None,
-                right: None,
-            }));
+            self.root = Some(Box::new(TreeNode::new(value)));
             return;
         }
 
-        let mut current = self.root.as_mut().unwrap();
+        let mut cur = self.root.as_mut().unwrap();
         loop {
-            if value < current.value {
+            if value < cur.value {
                 // 如果插入值小于等于当前节点的值，则往左子树插入
-                if let Some(ref mut left) = current.left {
-                    current = left;
+                if let Some(ref mut left) = cur.left {
+                    cur = left;
                 } else {
                     // 如果左子树为空，则将新值插入为左子节点
-                    current.left = Some(Box::new(TreeNode::new(value)));
+                    cur.left = Some(Box::new(TreeNode::new(value)));
                     break;
                 }
-            } else if value > current.value{
+            } else if value > cur.value{
                 // 如果插入值大于当前节点的值，则往右子树插入
-                if let Some(ref mut right) = current.right {
-                    current = right;
+                if let Some(ref mut right) = cur.right {
+                    cur = right;
                 } else {
                     // 如果右子树为空，则将新值插入为右子节点
-                    current.right = Some(Box::new(TreeNode::new(value)));
+                    cur.right = Some(Box::new(TreeNode::new(value)));
                     break;
                 }
             } else {
@@ -90,16 +86,26 @@ where
     where T: Clone
     {
         //TODO
-        let mut cur = &self.root;
+        if self.root.is_none() {
+            return false;
+        }
+        let mut cur = self.root.as_ref().unwrap();
         // 循环查找，越过叶节点后跳出
-        while cur.is_some() {
-            match value.cmp(&cur.as_ref().unwrap().value) {
-                // 目标节点在 cur 的右子树中
-                Ordering::Greater => cur = &(cur.as_ref().unwrap()).right,
-                // 目标节点在 cur 的左子树中
-                Ordering::Less => cur = &(cur.as_ref().unwrap()).left,
-                // 找到目标节点，跳出循环
-                Ordering::Equal =>{ return true;},
+        loop {
+            if value < cur.value {
+                if let Some(ref left) = cur.left {
+                    cur = left
+                } else {
+                    break;
+                }
+            } else if value > cur.value {
+                if let Some(ref right) = cur.right {
+                    cur = right
+                } else {
+                    break;
+                }
+            } else {
+                return true;
             }
         }
         false
